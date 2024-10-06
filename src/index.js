@@ -14,9 +14,10 @@ app.use(cors({
     origin: "http://localhost:5000"
 }));
 
+const PATH_FILE_PRODUCTOS = path.join(__dirname, "../frontend/public/js/carrito.json");
 async function obtenerProductos() {
     const productos = JSON.parse(
-        await fs.readFile(path.join(__dirname, "../frontend/js/carrito.json"), "utf-8")
+        await fs.readFile(PATH_FILE_PRODUCTOS, "utf-8")
     );
     return productos;
 }
@@ -36,11 +37,11 @@ async function recargarStock() {
 
     // Guardar solo si se hizo algún cambio
     if (stockRecargado) {
-        await fs.writeFile(path.join(__dirname, "../frontend/js/carrito.json"), JSON.stringify(productos, null, 2));
+        await fs.writeFile(PATH_FILE_PRODUCTOS, JSON.stringify(productos, null, 2));
     }
 }
 
-app.use(express.static(path.join(__dirname, "../frontend")));
+//app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Ruta para obtener la página principal
 
@@ -69,7 +70,7 @@ app.post("/carrito/productos", async (req, res) => {
             const nuevoProducto = { id, cantidad, stock, stockInicial: stock };
             productos.push(nuevoProducto);
 
-            await fs.writeFile(path.join(__dirname, "../frontend/js/carrito.json"), JSON.stringify(productos, null, 2));
+            await fs.writeFile(PATH_FILE_PRODUCTOS, JSON.stringify(productos, null, 2));
 
             res.status(201).json({ mensaje: "Producto agregado correctamente", producto: nuevoProducto });
         } else {
@@ -95,7 +96,7 @@ app.put("/carrito/productos/:id", async (req, res) => {
             producto.stock = stock;
 
             // Guardar los productos actualizados en el archivo JSON
-            await fs.writeFile(path.join(__dirname, "../frontend/js/carrito.json"), JSON.stringify(productos, null, 2));
+            await fs.writeFile(PATH_FILE_PRODUCTOS, JSON.stringify(productos, null, 2));
 
             res.json({ mensaje: "Producto actualizado correctamente", producto });
         } else {
@@ -118,7 +119,7 @@ app.delete("/carrito/productos/:id", async (req, res) => {
             // Aquí eliminamos el producto solo si el usuario explícitamente lo quiere fuera del carrito
             productos.splice(indiceProducto, 1);
 
-            await fs.writeFile(path.join(__dirname, "../frontend/js/carrito.json"), JSON.stringify(productos, null, 2));
+            await fs.writeFile(PATH_FILE_PRODUCTOS, JSON.stringify(productos, null, 2));
 
             res.json({ mensaje: "Producto eliminado correctamente" });
         } else {
